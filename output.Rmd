@@ -1,0 +1,899 @@
+---
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage[normalem]{ulem}
+  - \PassOptionsToPackage{table}{xcolor}
+output:
+  pdf_document:
+    fig_crop: no
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+  html_document:
+    fig_crop: no
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+params:
+  COS_NAME: Replace
+  COS_ISO3: Replace
+  COS_WEO3: Replace
+  COS_ISO2: Replace
+  COMP_CODE: Replace
+  COMP_VALUE: Replace
+  COMP_DF: Replace
+  ALL_TABLE: Replace
+  MAX_DATE: Replace
+  MIN_DATE: Replace
+  ISORA_PATH: Replace
+  WEO_PATH: Replace
+  DOTS_PATH: Replace
+  RATES_PATH: Replace
+  WORLD_PATH: Replace
+  RAGAP_PATH: Replace
+  TADAT_PATH: Replace
+  DUTIES_PATH: Replace
+  ORBIS_PATH: Replace
+title: "`r params$COS_NAME` Revenue Administration Primer"
+---
+
+\newpage
+# Cover
+
+
+I put together a way to generate a set of reports by making a template and looping over the template with new metadata.
+
+This is a straw man version, much of the report has been removed most of the data is randomly generated.
+
+
+## Notes on Data
+
+This section aims to list resources that staff can find additional resources for research.
+
+Additional internal resources for data:
+
+- [-]()
+
+- [-]()
+
+- [-]()
+
+- [-]()
+
+- [-]()
+    
+External Sources:
+
+- [Country Macro-Overview Dashboard](https://idea.usaid.gov/cd/albania/)
+
+- [World Integrated Trade Solution](https://wits.worldbank.org/Default.aspx?lang=en)
+    Website for world trade and tariff data visualizations
+
+- [EUR Truck and Sea Crossing Time Map](https://live.sixfold.com/)    
+  Only free during COVID
+
+- [NowCast Trade API](https://comtrade.un.org/Data/Doc/api/ex/r)
+
+
+
+
+\newpage
+
+```{r include=FALSE}
+
+
+options(kableExtra.latex.load_packages = FALSE)
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
+
+options(knitr.table.format = "latex") 
+library(kableExtra)
+
+```
+
+
+
+```{r Load Data, include=FALSE}
+# Load in data for charts
+
+
+weo <- read.csv(file = params$WEO_PATH, stringsAsFactors = FALSE)
+
+
+
+#DOTS <- read.csv(file = DOTS_PATH) 
+
+rates <- read.csv(file = params$RATES_PATH, stringsAsFactors = FALSE, encoding = "UTF-8-BOM")
+
+world <- read.csv(file = params$WORLD_PATH, stringsAsFactors = FALSE, encoding = "UTF-8-BOM")
+
+
+duty_data <- read.csv(file = params$DUTIES_PATH, stringsAsFactors = FALSE, encoding = "UTF-8")
+
+
+```
+
+# National Accounts
+
+## National Accounts - Output
+
+```{r ouput, echo=FALSE, fig.align="center", fig.height=6, fig.width=9, message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "NGDP_RPCH",
+          title = "Real GDP Percent Change",
+          subtitle = "percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+   ggplot() + theme_void(),
+  
+    weoLine(weo,
+          weoCode = "NGDPDPC",
+          title = "GDP per Capita",
+          subtitle = "USD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "NGDPRPC_PCH",
+          title = "GDP per Capita",
+          subtitle = "percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  nrow = 2
+  
+)
+
+
+
+```
+\newpage
+
+## National Accounts - Demand
+
+```{r demand, echo=FALSE, fig.align="center", fig.height=9, fig.width=9, message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "NFDDgdp",
+          title = "Total Domestic Demand",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "NFDD_RPCH",
+          title = "Total Domestic Demand",
+          subtitle = "percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoLine(weo,
+          weoCode = "NCPgdp",
+          title = "Private Consumption Expenditure",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "NCP_RPCH",
+          title = "Private Consumption Expenditure",
+          subtitle = "percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+        weoLine(weo,
+          weoCode = "NCGgdp",
+          title = "Public Consumption Expenditure",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+          weoLine(weo,
+          weoCode = "NCG_RPCH",
+          title = "Public Consumption Expenditure",
+          subtitle = "percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  nrow = 3
+  
+)
+
+```
+\newpage
+
+## National Accounts - Trade
+```{r trade, fig.align="center", fig.height=9, fig.width=9, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "NMgdp",
+          title = "Imports of Goods and Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "NXgdp",
+          title = "Exports of Goods and Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoLine(weo,
+          weoCode = "NXGgdp",
+          title = "Exports of Goods",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "NXSgdp",
+          title = "Exports of Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+        weoLine(weo,
+          weoCode = "NMGgdp",
+          title = "Imports of Goods",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+          weoLine(weo,
+          weoCode = "NMSgdp",
+          title = "Imports of Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  nrow = 3
+  
+)
+
+```
+\newpage
+
+# Revenue Data
+  
+## General Government Revenue Overview
+
+```{r 01_scatter_WEO_WoRLD_TaxGDP_to_GDPPC, fig.align="center", fig.height=9, fig.width=9, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  chart_1(COS_WEO3 = params$COS_WEO3, 
+             COMP_DF = params$COMP_DF,
+             COMP_VALUE = params$COMP_VALUE,
+             MAX_DATE = params$MAX_DATE,
+             DATA = weo),
+  
+  weoLine(weo,
+          weoCode = "GGRT_GDP",
+          title = "Tax to GDP",
+          subtitle = "",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoBarStacked_GGR(weo = weo,
+                    COS_NAME = params$COS_NAME, 
+                    COS_WEO3 = params$COS_WEO3),
+  
+  tpBarChart(world = world,
+             COS_NAME = params$COS_NAME, 
+             COS_WEO3 = params$COS_WEO3),
+  
+  weoBarStacked(weo = weo,
+                COS_NAME = params$COS_NAME, 
+                COS_WEO3 = params$COS_WEO3),
+  
+    weoLine(weo,
+          weoCode = "GGRCgdp",
+          title = "Commodity Related Revenue",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  nrow = 3
+)
+
+
+
+
+```
+\newpage
+
+## Revenue Data - Direct Taxes
+
+### Revenue Data - Direct Taxes - CIT
+```{r weoDirectTaxesCorporate, fig.align="center", fig.height=7.5, fig.width=8, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  tpChart(world,
+          code = "Corporate Income Tax Revenue as a % of GDP.A",
+          title = "Corporate Income Tax",
+          subtitle = "percent of GDP",
+          citation = "FAD Tax Policy WoRLD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+      weoLine(weo,
+          weoCode = "GGRTICgdp",
+          title = "Corporate Income Tax",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    tpChart(rates,
+          code = "Top Combined CIT Rate.A",
+          title = "Top Combined Corporate Income Tax Rate",
+          subtitle = "",
+          citation = "FAD Tax Policy Rates",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  nrow = 2
+)
+
+
+
+
+
+```
+
+\newpage
+#### Revenue Data - Direct Taxes - CIT - BvD Orbis Firm Level Financial Data
+
+removed
+
+\newpage
+
+#### Revenue Data - Direct Taxes - CIT -  Orbis Risk Differentiation Framework
+
+
+removed
+
+\newpage
+### Revenue Data - Direct Taxes - Individual Income Tax
+
+
+```{r weoDirectTaxesIndividual, fig.align="center", fig.height=7.5, fig.width=8, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  tpChart(world,
+          code = "Individual Income Tax Revenue as a % of GDP.A",
+          title = "Individual Income Tax",
+          subtitle = "percent of GDP",
+          citation = "FAD Tax Policy WoRLD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "GGRTIIgdp",
+          title = "Individual Income Tax",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  tpChart(rates,
+          code = "Top combined PIT rate.A",
+          title = "Top Combined Personal Income Tax Rate",
+          subtitle = "",
+          citation = "FAD Tax Policy Rates",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  nrow = 2
+)
+
+
+
+
+
+```
+
+
+\newpage
+
+## Revenue Data - Indirect Taxes
+
+```{r weoInDirectTaxesLine, fig.align="center", fig.height=9.5, fig.width=8, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+  tpChart(world,
+          code = "VAT Revenue as a % of GDP.A",
+          title = "VAT Revenue",
+          subtitle = "percent of GDP",
+          citation = "FAD Tax Policy WoRLD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+        weoLine(weo,
+          weoCode = "GGRTGSgdp",
+          title = "Goods and Services Tax",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  
+    tpChart(world,
+          code = "Trade Tax Revenue as a % of GDP.A",
+          title = "Trade Tax Revenue",
+          subtitle = "percent of GDP",
+          citation = "FAD Tax Policy WoRLD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+      weoLine(weo,
+          weoCode = "GGRTTgdp",
+          title = "International Trade Tax",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    tpChart(world,
+          code = "Excise Tax Revenue as a % of GDP.A",
+          title = "Excise Tax Revenue",
+          subtitle = "percent of GDP",
+          citation = "FAD Tax Policy WoRLD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF), 
+  
+  ggplot() + theme_void(),
+  
+
+  
+  tpChart(rates,
+          code = "Combined standard VAT rate.A",
+          title = "Combined Standard VAT rate",
+          subtitle = "",
+          citation = "FAD Tax Policy Rates",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+
+  
+
+  
+  nrow = 4
+)
+
+
+
+```
+
+
+
+\newpage
+
+# International Survey on Revenue Administrations (ISORA)
+
+
+The IMF has collaboratively developed this survey along with the Inter-American Center of Tax Administrations (CIAT), the Intra-European Organisation of Tax Administrations (IOTA), and the Organisation for Economic Cooperation and Development (OECD).
+
+Accordingly, it is the IMF’s vision to:
+
+ - Assist revenue administrations globally to improve their focus performance measurement and reporting
+ - Provide a larger set of revenue administration data to improve advice and analysis
+ - Develop data and analyses that can improve cross-country comparisons
+
+Provided Links:
+
+- [ISORA Website](https://data.rafit.org/)
+
+
+## Return Filing
+
+removed
+
+\newpage
+
+## Human Resources
+
+removed
+
+\newpage
+
+
+# Fiscal Position
+
+```{r fiscal_position, fig.align="center", fig.height=6, fig.width=9, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "GGXOFB_GDP",
+          title = "General Government Overall Fiscal Balance",
+          subtitle = "percent of fiscal year GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "GGXWDG_GDP",
+          title = "General Government Gross Debt",
+          subtitle = "percent fiscal year GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoLine(weo,
+          weoCode = "DSI_GDP",
+          title = "Interest Paid",
+          subtitle = "percent of GDP in USD",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "GGEgdp",
+          title = "General Government Expense",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  
+  nrow = 2
+)
+
+
+```
+
+# Duties
+
+## Duties - Agricultural Duties
+```{r agricultureal_duties, fig.align="center", fig.height=3, fig.width=6, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+    wto_duties_line_chart(duty_data = duty_data,
+                          COS_ISO3=params$COS_ISO3,
+                          title="Agricultural Most Favored Nation Duties",
+                          subtitle="percent of duties in duty range",
+                          indicator_list = c( "MFN AG -  Duties in duty range:  0 <= 5%",
+                                              "MFN AG -  Duties in duty range:  5% <= 10%",
+                                              "MFN AG -  Duties in duty range:  10% <= 15%",
+                                              "MFN AG -  Duties in duty range:  15% <= 25%",
+                                              "MFN AG -  Duties in duty range:  25% <= 50%",
+                                              "MFN AG -  Duties in duty range:  50% <= 100%",
+                                              "MFN AG -  Duties in duty range: > 100%")),
+    wto_duties_line_chart(duty_data = duty_data,
+                          COS_ISO3=params$COS_ISO3,
+                          title="Agricultural Most Favored Nation Imports",
+                          subtitle="percent of imports in duty range",
+                          indicator_list = c( "MFN AG -  Imports in duty range:  0 <= 5%",
+                                              "MFN AG -  Imports in duty range:  5% <= 10%",
+                                              "MFN AG -  Imports in duty range:  10% <= 15%",
+                                              "MFN AG -  Imports in duty range:  15% <= 25%",
+                                              "MFN AG -  Imports in duty range:  25% <= 50%",
+                                              "MFN AG -  Imports in duty range:  50% <= 100%",
+                                              "MFN AG -  Imports in duty range: > 100%")),
+  nrow = 1
+)
+
+
+```
+
+
+## Duties - Non-Agricultural Duties
+```{r non-agricultureal_duties, fig.align="center", fig.height=3, fig.width=6, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+      wto_duties_line_chart(duty_data = duty_data,
+                          COS_ISO3=params$COS_ISO3,
+                          title="Non-Agricultural Most Favored Nation Duties",
+                          subtitle="percent of duties in duty range",
+                          indicator_list = c( "MFN Non-AG -  Duties in duty range:  0 <= 5%",
+                                              "MFN Non-AG -  Duties in duty range:  5% <= 10%",
+                                              "MFN Non-AG -  Duties in duty range:  10% <= 15%",
+                                              "MFN Non-AG -  Duties in duty range:  15% <= 25%",
+                                              "MFN Non-AG -  Duties in duty range:  25% <= 50%",
+                                              "MFN Non-AG -  Duties in duty range:  50% <= 100%",
+                                              "MFN Non-AG -  Duties in duty range: > 100%")),
+    
+
+    wto_duties_line_chart(duty_data = duty_data,
+                          COS_ISO3=params$COS_ISO3,
+                          title="Non-Agricultural Most Favored Nation Imports",
+                          subtitle="percent of imports in duty range",
+                          indicator_list = c( "MFN Non-AG -  Imports in duty range:  0 <= 5%",
+                                              "MFN Non-AG -  Imports in duty range:  5% <= 10%",
+                                              "MFN Non-AG -  Imports in duty range:  10% <= 15%",
+                                              "MFN Non-AG -  Imports in duty range:  15% <= 25%",
+                                              "MFN Non-AG -  Imports in duty range:  25% <= 50%",
+                                              "MFN Non-AG -  Imports in duty range:  50% <= 100%",
+                                              "MFN Non-AG -  Imports in duty range: > 100%")),
+  nrow = 1
+)
+
+
+```
+\newpage
+
+## Duty Definitions
+
+Bound tariffs are specific commitments made by individual WTO member governments. The bound tariff is the maximum MFN tariff level for a given commodity line. When countries join the WTO or when WTO members negotiate tariff levels with each other during trade rounds, they make agreements about bound tariff rates, rather than actually applied rates.
+
+Bound tariffs are not necessarily the rate that a WTO member applies in practice to other WTO members' products. Members have the flexibility increase or decrease their tariffs (on a non-discriminatory basis) so long as they didn't raise them above their bound levels. If one WTO member raises applied tariffs above their bound level, other WTO members can take the country to dispute settlement. If the country did not reduced applied tariffs below their bound levels, other countries could request compensation in the form of higher tariffs of their own. In other words, the applied tariff is less than or equal to the bound tariff in practice for any particular product.
+
+The gap between the bound and applied MFN rates is called the binding overhang. Trade economists argue that a large binding overhang makes a country's trade policies less predictable. This gap tends to be small on average in industrial countries and often fairly large in developing countries.
+
+[Text Citation World Bank](https://wits.worldbank.org/wits/wits/witshelp/content/data_retrieval/p/intro/c2.types_of_tariffs.htm)
+
+Most Favoured Nation (MFN) tariffs are a tariff level that a member of the General Agreement on Tariffs and Trade of the WTO charges on a good to other members, i.e. a country with a most favoured nation status (see UNCTAD, 2018) It applies to imports from trading partners-members of the World Trade Organization (WTO), unless the country has a preferential trade agreement. It is the lowest possible tariff a country can assess on another country.
+
+[Text Cititation UNCTAD](https://sdgpulse.unctad.org/glossary/mfn-tariffs/)
+
+
+# Balance of Payments 
+
+```{r current_account, fig.align="center", fig.height=9, fig.width=9, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "BCA_GDP_BP6",
+          title = "Balance on Current Account",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+   ggplot() + theme_void(),
+  
+      weoLine(weo,
+          weoCode = "BG_GDP_BP6",
+          title = "Balance on Goods",
+          subtitle = "percent fiscal year GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoLine(weo,
+          weoCode = "BS_GDP_BP6",
+          title = "Balance on Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "BIP_GDP_BP6",
+          title = "Primary Income, net",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+        weoLine(weo,
+          weoCode = "BIS_GDP_BP6",
+          title = "Secondary Income, net",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  nrow = 3
+  
+)
+
+
+```
+
+
+
+
+\newpage
+# Price, Labor, and Monetary
+
+```{r plm, fig.align="center", fig.height=9, fig.width=9, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+
+grid.arrange(
+  
+  weoLine(weo,
+          weoCode = "PCPI_PCH",
+          title = "Consumer Prices",
+          subtitle = "period average, percent change",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+   ggplot() + theme_void(),
+  
+      weoLine(weo,
+          weoCode = "BG_GDP_BP6",
+          title = "Balance on Goods",
+          subtitle = "percent fiscal year GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+    weoLine(weo,
+          weoCode = "BS_GDP_BP6",
+          title = "Balance on Services",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+      weoLine(weo,
+          weoCode = "BIP_GDP_BP6",
+          title = "Primary Income, net",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+        weoLine(weo,
+          weoCode = "BIS_GDP_BP6",
+          title = "Secondary Income, net",
+          subtitle = "percent of GDP",
+          COS_NAME = params$COS_NAME,
+          COS_WEO3 = params$COS_WEO3,
+          COMP_CODE = params$COMP_CODE,
+          COMP_VALUE = params$COMP_VALUE,
+          COMP_DF = params$COMP_DF),
+  
+  
+  nrow = 3
+  
+)
+
+
+```
+
+
+
+
+
+\newpage
+# Appendix
+
+removed

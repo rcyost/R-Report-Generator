@@ -1,0 +1,188 @@
+---
+title: "Master"
+output: html_document
+author: Ryan Yost
+---
+
+
+```{r setup}
+
+# change this to find whereever the current file is
+#mainDir <- "C:/Users/ryost/Box Sync/RA_Loop"
+mainDir <- "C:/Users/ryost/Box Sync/00- Main/Internal/02 - Work/Projects/RA - Primer/git_RA_primer/draft_fake/"
+
+
+# set up file
+# this will call all utility files and load packages needed
+source(file = "requirements.R")
+source(file = "utilities.R")
+
+
+MIN_DATE <- 2000
+MAX_DATE <- 2021
+
+# do we want two filters for the comparison group, e.g. LIDC + WHD
+# This has to be 1, 
+# 2 layer filtering not currently supported
+COMP_FILTER = 1
+
+
+```
+
+```{r data paths}
+
+dataDir <- "data/02-Clean/"
+
+# tables for chart
+ALL_TABLE <- read.csv(file.path(mainDir, dataDir, "ALL_TABLE.csv"))
+WEO_PATH <- file.path(mainDir, dataDir, "weo.csv")
+DOTS_PATH <- file.path(mainDir, dataDir, "DOTS.csv")
+RATES_PATH <- file.path(mainDir, dataDir, "rates.csv")
+WORLD_PATH <- file.path(mainDir, dataDir, "world.csv")
+DUTIES_PATH <- file.path(mainDir, dataDir, "wto_duties_data.csv")
+
+# country list used for loop
+COUNTRY_CLASS_PATH <- file.path(mainDir, dataDir ,"CountryClassifications.xlsx")
+country_list <- read.xlsx(file = COUNTRY_CLASS_PATH, sheetIndex = 1, stringsAsFactors = F)
+
+
+```
+
+
+```{r loop}
+
+
+for (i in 1:length(country_list$Value)){
+  
+  COS_ISO3 <- country_list$WEO_ISO_3[i]
+  COS_WEO3 <- country_list$WEO_Code[i]
+  COS_ISO2 <- country_list$WEO_ISO_2[i]
+  # this is a column header in the country classification.xlsx input file
+  
+  COS_NAME <- country_list$Value[i]
+  # this is a column header in the country classification.xlsx input file
+  COMP_CODE <- "IMF_Region"
+  # this will get each country's division to filter by
+  COMP_VALUE <- country_list$IMF_Region[i]
+  
+
+  subDir <- paste(COS_NAME, "_", COMP_VALUE, "_", sep = "")
+  
+  COMP_DF <- getCompInfo(Codetype = COMP_CODE,
+                         CodeValue = COMP_VALUE,
+                         longOrWide = "wide",
+                         path = COUNTRY_CLASS_PATH)
+  
+  rmarkdown::render(
+                    input = file.path("output.Rmd"),
+                    
+                    output_file = paste(subDir, ".pdf", sep = ""),
+                    
+                    output_format = "pdf_document",
+                    
+                    # start fresh environment for each render
+                    envir = new.env(),
+                    
+                    
+                    params = list(
+                      # country of study information
+                      COS_NAME = as.character(COS_NAME),
+                      COS_ISO3 = as.character(COS_ISO3),
+                      COS_WEO3 = as.character(COS_WEO3),
+                      COS_ISO2 = as.character(COS_ISO2),
+                      # comparator information
+                      COMP_CODE = COMP_CODE,
+                      COMP_VALUE = COMP_VALUE,
+                      COMP_DF = COMP_DF,
+                      # list of countries
+                      ALL_TABLE = ALL_TABLE,
+                      # dates
+                      MAX_DATE = MAX_DATE,
+                      MIN_DATE = MIN_DATE,
+                      # list to datasets
+                      WEO_PATH = WEO_PATH,
+                      DOTS_PATH = DOTS_PATH,
+                      RATES_PATH = RATES_PATH,
+                      WORLD_PATH = WORLD_PATH,
+                      DUTIES_PATH = DUTIES_PATH,
+                    )
+              )
+  
+  
+}
+
+
+
+```
+
+```{r one - report }
+
+
+  
+  COS_NAME <- "RandomData"
+  COS_ISO3 <- "ARM"
+  COS_WEO3 <- "911"
+  COS_ISO2 <- "AM"
+  # this is a column header in the country classification.xlsx input file
+  COMP_CODE <- "IMF_Region"
+  # this will get each country's division to filter by
+  COMP_VALUE <- "MCD"
+  
+  subDir <- paste(COS_NAME, "_", COMP_VALUE, "_", sep = "")
+  
+  COMP_DF <- getCompInfo(Codetype = COMP_CODE,
+                         CodeValue = COMP_VALUE,
+                         longOrWide = "wide",
+                         path = COUNTRY_CLASS_PATH)
+  
+
+  rmarkdown::render(
+                    input = file.path("output.Rmd"),
+                    
+                    output_file = paste(subDir, ".pdf", sep = ""),
+                    
+                    output_format = "pdf_document",
+                    
+                    # start fresh environment for each render
+                    envir = new.env(),
+                    
+                    
+                    params = list(
+                      
+                      # country of study information
+                      COS_NAME = as.character(COS_NAME),
+                      COS_ISO3 = as.character(COS_ISO3),
+                      COS_WEO3 = as.character(COS_WEO3),
+                      COS_ISO2 = as.character(COS_ISO2),
+                      
+                      # comparator information
+                      COMP_CODE = COMP_CODE,
+                      COMP_VALUE = COMP_VALUE,
+                      COMP_DF = COMP_DF,
+                      
+                      # list of countries
+                      ALL_TABLE = ALL_TABLE,
+                      
+                      # dates
+                      MAX_DATE = MAX_DATE,
+                      MIN_DATE = MIN_DATE,
+                      
+                      # list to datasets
+                      WEO_PATH = WEO_PATH,
+                      DOTS_PATH = DOTS_PATH,
+                      RATES_PATH = RATES_PATH,
+                      WORLD_PATH = WORLD_PATH,
+                      DUTIES_PATH = DUTIES_PATH
+
+                    )
+              )
+  
+  
+
+```
+
+
+
+
+
+
